@@ -6,10 +6,7 @@ use App\Models\Customer;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
-use GuzzleHttp\Client;
-use App\Models\Payment;
 
 class CustomerController extends Controller
 {
@@ -18,51 +15,29 @@ class CustomerController extends Controller
         // Retrieve customers from the database
         $customers = Customer::withCount('invoices')->get();
 
-        $client = new Client();
+        // Get the user's preferred currency
+        $userCurrency = Auth::user()->currency;
 
-        $customers->each(function ($customer) use ($client) {
-            $customer->amount_owned = $customer->invoices->sum('amount_due');
-
-            // Convert the amount owned to USD using the currency converter API
-            $customer->amount_owned_usd = $this->convertToUSD($customer->amount_owned, $customer->invoices->pluck('currency')->unique(), $client);
+        $customers->each(function ($customer) use ($userCurrency) {
+            // Summing the amounts in the user's preferred currency
+            $amountOwned = 0;
+            foreach ($customer->invoices as $invoice) {
+                if ($invoice->currency === $userCurrency) {
+                    $amountOwned += $invoice->amount_due;
+                } else {
+                    // Convert the amount to the user's preferred currency here if needed
+                    // or handle different currency invoices differently.
+                }
+            }
+            $customer->amount_owned = $amountOwned;
         });
 
         // Pass the customers data to the view
         return Inertia::render('Customers', [
             'customers' => $customers,
+            'currency' => $userCurrency, // Passing the user's preferred currency to the view
         ]);
     }
-
-    private function convertToUSD($amount, $currencies, $client)
-{
-    $conversionRates = $this->getConversionRates($client);
-    $usdConversionRate = $conversionRates['rates']['USD'];
-
-    $totalUSD = $currencies->reduce(function ($total, $currency) use ($amount, $conversionRates, $usdConversionRate) {
-        if ($currency === 'USD') {
-            return $total + $amount;
-        }
-
-        if (isset($conversionRates['rates'][$currency])) {
-            $conversionRate = $conversionRates['rates'][$currency];
-            return $total + ($amount / $conversionRate) * $usdConversionRate;
-        }
-
-        return $total;
-    }, 0);
-
-    return $totalUSD;
-}
-
-private function getConversionRates($client)
-{
-    return Cache::remember('conversion_rates', now()->addHours(24), function () use ($client) {
-        $response = $client->request('GET', 'https://api.exchangerate-api.com/v4/latest/USD');
-        return json_decode($response->getBody(), true);
-    });
-}
-
-    
 
     public function store(Request $request)
     {

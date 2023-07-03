@@ -88,6 +88,7 @@ const CreatePaymentModal = ({ onClose, invoice }) => {
 const Payments = ({ invoice, payments }) => {
 
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState(false);
 
     const handleOpenCreateModal = (invoice) => {
@@ -112,44 +113,41 @@ const Payments = ({ invoice, payments }) => {
     return (
         <AuthenticatedLayout header={<h2 className="font-semibold text-3xl text-black leading-tight">Payments for Invoice #{invoice.invoice_number}</h2>}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Render your payments list here */}
-                <table className="w-full">
-                    <thead>
-                        <tr>
-                            <th>Amount</th>
-                            <th>Currency</th>
-                            <th>Payment Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {payments.map((payment) => (
-                            <tr key={payment.id}>
-                                <td>{payment.amount}</td>
-                                <td>{payment.currency}</td>
-                                <td>{payment.payment_date}</td>
-                                <td>
-                                    <div className="space-x-2">
-                                        <button
-                                            onClick={() => handleEditPayment(payment.id)}
-                                            className="text-blue-600 hover:underline"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeletePayment(payment.id)}
-                                            className="text-red-600 hover:underline"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </td>
+                
+                <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Date</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {payments.map((payment) => (
+                                <tr key={payment.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap">{payment.amount}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{payment.payment_date}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex space-x-2">
+                                          <button onClick={() => handleEditPayment(payment.id)} className="text-indigo-600 hover:underline">
+                                              Edit
+                                          </button>
+                                          <button onClick={() => handleDeletePayment(payment.id)} className="text-red-600 hover:underline">
+                                              Delete
+                                          </button>
+                                          
+                                      </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
-                {/* Add payment creation modal button */}
-                <PrimaryButton onClick={handleOpenCreateModal}>Add Payment</PrimaryButton>
+                <div className="mt-4">
+                    <PrimaryButton onClick={handleOpenCreateModal}>Add Payment</PrimaryButton>
+                </div>
 
                 {/* Render the payment creation modal */}
                 {showCreateModal && <CreatePaymentModal onClose={handleCloseCreateModal} invoice={invoice} />}
@@ -157,5 +155,6 @@ const Payments = ({ invoice, payments }) => {
         </AuthenticatedLayout>
     );
 };
+
 
 export default Payments;

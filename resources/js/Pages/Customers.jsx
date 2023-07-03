@@ -148,16 +148,16 @@ const AddCustomerModal = ({ onCancel }) => {
 };
 
 // Customers component
-const Customers = ({ auth }) => {
+const Customers = ({ auth, currency }) => {
     const { customers } = usePage().props;
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredCustomers, setFilteredCustomers] = useState(customers);
     const [showAddModal, setShowAddModal] = useState(false);
 
     const fuse = new Fuse(customers, {
-        keys: ['name', 'email', 'phone'], // Define the searchable keys
-        includeScore: true, // Include search score for fuzzy search
-        threshold: 0.3, // Define the search threshold for fuzzy search
+        keys: ['name', 'email', 'phone'],
+        includeScore: true,
+        threshold: 0.3,
     });
 
     useEffect(() => {
@@ -170,11 +170,8 @@ const Customers = ({ auth }) => {
     };
 
     const handleAddCustomer = (newCustomer) => {
-        // Handle adding the new customer to the database or API
         console.log('New Customer:', newCustomer);
-        // Close the modal
         setShowAddModal(false);
-        // Refresh the customer list or add the new customer to the existing list
     };
 
     return (
@@ -212,7 +209,7 @@ const Customers = ({ auth }) => {
                                 <span className="block">{customer.phone}</span>
                                 <span className="block">Country: {customer.country}</span>
                                 <span className="block">Number of invoices: {customer.invoices_count}</span>
-                                <span className="block">Amount Owned: {customer.amount_owned} USD</span>
+                                <span className="block">Amount Owned: {customer.amount_owned} {currency}</span>
                             </div>
                         </li>
                     ))}

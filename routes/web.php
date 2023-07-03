@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -56,17 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
-    Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
-    Route::get('/expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
-    Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
-    Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
-    Route::get('/expense-types', [ExpenseTypeController::class, 'index'])->name('expense-types.index');
-    Route::post('/expense-types', [ExpenseTypeController::class, 'store'])->name('expense-types.store');
-    Route::get('/expense-types/create', [ExpenseTypeController::class, 'create'])->name('expense-types.create');
-    Route::get('/expense-types/{expenseType}/edit', [ExpenseTypeController::class, 'edit'])->name('expense-types.edit');
-    Route::put('/expense-types/{expenseType}', [ExpenseTypeController::class, 'update'])->name('expense-types.update');
-    Route::delete('/expense-types/{expenseType}', [ExpenseTypeController::class, 'destroy'])->name('expense-types.destroy');
 
 
 

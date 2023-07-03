@@ -23,7 +23,6 @@ class InvoicePaymentController extends Controller
     {
         $validatedData = $request->validate([
             'amount' => 'required',
-            'currency' => 'required',
             'payment_date' => 'required',
         ]);
 
@@ -70,7 +69,6 @@ class InvoicePaymentController extends Controller
 {
     $validatedData = $request->validate([
         'amount' => 'required',
-        'currency' => 'required',
         'payment_date' => 'required',
         'invoice_id' => 'required|exists:invoices,id',
     ]);

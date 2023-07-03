@@ -31,6 +31,8 @@ const EditInvoicePage = ({ invoice, customers, auth }) => {
     setData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  
+
   return (
 
     <AuthenticatedLayout
@@ -122,21 +124,6 @@ const EditInvoicePage = ({ invoice, customers, auth }) => {
               className="border border-gray-300 rounded px-3 py-2 w-full"
             />
             {errors.amount_due && <div className="text-red-500">{errors.amount_due}</div>}
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="currency" className="block font-semibold mb-1">
-              Currency
-            </label>
-            <input
-              id="currency"
-              type="text"
-              name="currency"
-              value={data.currency}
-              onChange={handleChange}
-              className="border border-gray-300 rounded px-3 py-2 w-full"
-            />
-            {errors.currency && <div className="text-red-500">{errors.currency}</div>}
           </div>
 
           <PrimaryButton className='mb-10' type="submit" disabled={processing}>Update Invoice</PrimaryButton>

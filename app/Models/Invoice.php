@@ -13,7 +13,6 @@ class Invoice extends Model
         'invoice_number',
         'description',
         'amount_due',
-        'currency',
         'date',
         'customer_id',
     ];

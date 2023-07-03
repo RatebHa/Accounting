@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Balance;
+use App\Models\BalanceHistory;
 use App\Models\Expense;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 
@@ -13,55 +16,44 @@ class ExpenseController extends Controller
 {
     public function index()
     {
-        $expenses = Expense::with('category')->where('user_id', auth()->id())->get();
+        $expenses = Expense::all();
+        $userCurrency = Auth::user()->currency;
 
-        return Inertia::render('Expenses/Index', [
+        return Inertia::render('Expenses', [
             'expenses' => $expenses,
+            'currency' => $userCurrency,
         ]);
     }
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required',
-            'amount' => 'required|numeric|min:0',
-            'category_id' => 'nullable|exists:expense_categories,id',
+        $request->validate([
+            'type' => 'required|in:daily,weekly,monthly,annually,one_time',
+            'category' => 'required|in:in,out',
+            'description' => 'required|string',
+            'amount' => 'required|numeric|min:0'
         ]);
 
-        $expense = new Expense($validatedData);
+        $expense = new Expense;
+
         $expense->user_id = auth()->id();
+        $expense->type = $request->type;
+        $expense->category = $request->category;
+        $expense->description = $request->description;
+        $expense->amount = $request->amount;
+
         $expense->save();
 
-        return redirect()->route('expenses.index')->with('success', 'Expense has been created successfully.');
-    }
+        $balance = Balance::where('user_id', auth()->id())->first();
+        $balance->balance += ($expense->category == 'in') ? $expense->amount : -$expense->amount;
+        $balance->save();
 
-    public function edit(Expense $expense)
-    {
-        $categories = ExpenseCategory::all(); // Fetch expense categories to populate dropdown
-
-        return Inertia::render('Expenses/Edit', [
-            'expense' => $expense,
-            'categories' => $categories,
-        ]);
-    }
-
-    public function update(Request $request, Expense $expense)
-    {
-        $validatedData = $request->validate([
-            'name' => 'required',
-            'amount' => 'required|numeric|min:0',
-            'category_id' => 'nullable|exists:expense_categories,id',
+        BalanceHistory::create([
+            'user_id' => auth()->id(),
+            'expense_id' => $expense->id,
+            'amount_change' => ($expense->category == 'in') ? $expense->amount : -$expense->amount,
         ]);
 
-        $expense->update($validatedData);
-
-        return redirect()->route('expenses.index')->with('success', 'Expense has been updated successfully.');
-    }
-
-    public function destroy(Expense $expense)
-    {
-        $expense->delete();
-
-        return redirect()->route('expenses.index')->with('success', 'Expense has been deleted successfully.');
+        // return response()->json(['message' => 'Expense created successfully'], 201);
     }
 }
